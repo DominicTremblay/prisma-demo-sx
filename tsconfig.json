@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": false,
+    "moduleResolution": "node",
+    "lib": [
+      "ESNext"
+    ],
+    "esModuleInterop": true
+  }
+}

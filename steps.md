@@ -207,51 +207,6 @@ model Movie {
 npx prisma migrate dev --name=<migration_name>
 ```
 
-3.3 Create the actors model in  in prisma/schema.prisma
-
-```prisma
-model Actor {
-  id            Int      @id @default(autoincrement())
-  first_name    String
-  last_name     String
-  date_of_birth DateTime
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-```
-
-3.4 Create the casting model and add the relationships
-
-```prisma
-model Movie {
-  id                 Int       @id @default(autoincrement())
-  title              String
-  release_date       DateTime
-  runtime_in_minutes Int
-  casting            Casting[]
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-}
-
-model Actor {
-  id            Int       @id @default(autoincrement())
-  first_name    String
-  last_name     String
-  date_of_birth DateTime
-  casting       Casting[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-}
-
-model Casting {
-  id       Int    @id @default(autoincrement())
-  movie_id Int?
-  movie    Movie? @relation(fields: [movie_id], references: [id])
-  Actor    Actor? @relation(fields: [actor_id], references: [id])
-  actor_id  Int?
-}
-```
-
 04. Seed the Database
 
 4.1 Create the seed files
@@ -316,51 +271,6 @@ main()
 
  `npx prisma studio`
 
-4.5 Seed the Actors
-
-* reset the database `npx prisma migrate reset`
-* re-seed with `npm run seed` after modifying seed.ts
-
-```javascript
-...
-
-async function main() {
-        await prisma.movie.createMany({
-            data: movies,
-        });
-
-        await prisma.actor.createMany({
-            data: actors,
-        });
-    }
-
-    ...
-```
-
-4.6 Seed casting
-
-* reset the database `npx prisma migrate reset`
-* re-seed with `npm run seed` after modifying seed.ts
-
-```javascript
-...
-
-async function main() {
-        await prisma.movie.createMany({
-            data: movies,
-        });
-
-        await prisma.actor.createMany({
-            data: actors,
-        });
-
-        await prisma.casting.createMany({
-            data: casting,
-        });
-    }
-    ...
-```
-
 ## III. Create the Handlers
 
 01. Create the folder
@@ -404,121 +314,9 @@ router.get('/', getAllMovies);
 export default router;
 ```
 
-04. Create the Actor Handler
+04. Add the getMovieById Handler
 
-```bash
-touch src/handlers/actors.ts
-```
-
-```javascript
-import prisma from '../../db';
-
-export const getAllActors = async (req, res) => {
-    const actors = await prisma.actor.findMany();
-
-    res.json({
-        data: actors
-    });
-};
-```
-
-05. Create the actorRouter
-
-```bash
-touch src/routers/actorRouter.ts
-```
-
-```javascript
-import {
-    getAllActors
-} from '../handlers/actors';
-
-const router = Router();
-
-router.get('/', getAllActors);
-
-export default router;
-```
-
-06. Add the actorRouter to the server
-
-```javascript
-import express from 'express';
-import morgan from 'morgan';
-import movieRouter from './routers/movieRouter';
-import actorRouter from './routers/actorRouter'
-
-const PORT = process.env.PORT || 3001;
-const app = express();
-
-app.set('view engine', 'ejs');
-
-app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({
-    extended: true
-}));
-
-app.use('/api/v1/movies/', movieRouter);
-app.use('/api/v1/actors/', actorRouter);
-
-app.get('/', (req, res) => {
-    res.json({
-        msg: 'API Home'
-    });
-});
-
-app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`);
-});
-```
-
-07. Add the actors to movies
-
-* modify the movies.ts handler
-
-```javascript
-export const getAllMovies = async (req, res) => {
-    const movies = await prisma.movie.findMany({
-
-        include: {
-            casting: {
-                select: {
-                    Actor: true
-                }
-            }
-        }
-    });
-
-    res.json({
-        data: movies
-    });
-};
-```
-
-08. Add the movies to actors
-
-```javascript
-export const getAllActors = async (req, res) => {
-    const actors = await prisma.actor.findMany({
-        include: {
-            casting: {
-                select: {
-                    movie: true,
-                },
-            },
-        },
-    });
-
-    res.json({
-        data: actors
-    });
-};
-```
-
-09. Add getMovieById Handler
-
-```javascript
+```Javascript
 export const getMovieById = async (req, res) => {
     const id = Number(req.params.id);
 
@@ -526,37 +324,59 @@ export const getMovieById = async (req, res) => {
         where: {
             id,
         },
-        include: {
-            casting: {
-                select: {
-                    Actor: true,
-                },
-            },
-        },
     });
     res.json({
         data: movie
     });
+
 };
 ```
 
-10. Add the route 
+05. Add the route in movieRouter
 
-* Modify src/routers/movieRouter.ts
+ `router.get('/:id', getMovieById);`
+
+06. Create the updateMovie handler
+
+```javascript 
+export const updateMovie = async (req, res) => {
+  const id = Number(req.params.id); 
+
+  const movie = await prisma.movie.update({
+
+    where: {
+      id,
+    },
+    data: req.body, 
+
+  }); 
+
+  res.json({ data: movie }); 
+}; 
+
+```
+
+07. Add the route in movieRouter
+
+`router.put('/:id', updateMovie);`
+
+08. Add the deleteMovie Handler
 
 ```javascript
-import {
-    Router
-} from 'express';
-import {
-    getAllMovies,
-    getMovieById
-} from '../handlers/movies';
+export const deleteMovie = async (req, res) => {
+  const id = Number(req.params.id);
 
-const router = Router();
+  const movie = await prisma.movie.delete({
+    where: {
+      id,
+    },
+  });
 
-router.get('/', getAllMovies);
-router.get('/:id', getMovieById);
-
-export default router;
+  res.json({ data: movie });
+};
 ```
+
+09. Add the route in movieRouter
+
+`router.delete('/:id', deleteMovie);`
+

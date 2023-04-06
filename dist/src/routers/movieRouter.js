@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
+var movies_1 = require("../handlers/movies");
 var router = (0, express_1.Router)();
-router.get('/', function (req, res) {
-    res.json({ msg: 'getting the list of movies' });
-});
+router.get('/', movies_1.getAllMovies);
+router.get('/:id', movies_1.getMovieById);
+router.put('/:id', movies_1.updateMovie);
+router.delete('/:id', movies_1.deleteMovie);
 exports.default = router;
 //# sourceMappingURL=movieRouter.js.map

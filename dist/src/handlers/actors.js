@@ -35,52 +35,81 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var client_1 = require("@prisma/client");
-var movies_1 = require("./seeds/movies");
-var actors_1 = require("./seeds/actors");
-var prisma = new client_1.PrismaClient();
-function main() {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, prisma.movie.createMany({
-                        data: movies_1.movies,
-                    })];
-                case 1:
-                    _a.sent();
-                    return [4 /*yield*/, prisma.actor.createMany({
-                            data: actors_1.actors,
-                        })];
-                case 2:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
-        });
-    });
-}
-main()
-    .then(function () { return __awaiter(void 0, void 0, void 0, function () {
+exports.deleteActor = exports.updateActor = exports.getActorById = exports.getAllActors = void 0;
+var db_1 = __importDefault(require("../../db"));
+var getAllActors = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var actors;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, prisma.$disconnect()];
+            case 0: return [4 /*yield*/, db_1.default.actor.findMany()];
             case 1:
-                _a.sent();
+                actors = _a.sent();
+                res.json({ data: actors });
                 return [2 /*return*/];
         }
     });
-}); })
-    .catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
+}); };
+exports.getAllActors = getAllActors;
+var getActorById = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, actor;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                console.error(e);
-                return [4 /*yield*/, prisma.$disconnect()];
+                id = Number(req.params.id);
+                return [4 /*yield*/, db_1.default.actor.findUnique({
+                        where: {
+                            id: id,
+                        },
+                    })];
             case 1:
-                _a.sent();
-                process.exit(1);
+                actor = _a.sent();
+                res.json({ data: actor });
                 return [2 /*return*/];
         }
     });
-}); });
-//# sourceMappingURL=seed.js.map
+}); };
+exports.getActorById = getActorById;
+var updateActor = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, actor;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                id = Number(req.params.id);
+                return [4 /*yield*/, db_1.default.actor.update({
+                        where: {
+                            id: id,
+                        },
+                        data: req.body,
+                    })];
+            case 1:
+                actor = _a.sent();
+                res.json({ data: actor });
+                return [2 /*return*/];
+        }
+    });
+}); };
+exports.updateActor = updateActor;
+var deleteActor = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, actor;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                id = Number(req.params.id);
+                return [4 /*yield*/, db_1.default.actor.delete({
+                        where: {
+                            id: id,
+                        },
+                    })];
+            case 1:
+                actor = _a.sent();
+                res.json({ data: actor });
+                return [2 /*return*/];
+        }
+    });
+}); };
+exports.deleteActor = deleteActor;
+//# sourceMappingURL=actors.js.map

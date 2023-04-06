@@ -18,3 +18,12 @@ model Movie {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
+
+model Actor {
+  id            Int      @id @default(autoincrement())
+  first_name    String
+  last_name     String
+  date_of_birth DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

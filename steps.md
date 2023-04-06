@@ -378,5 +378,145 @@ export const deleteMovie = async (req, res) => {
 
 09. Add the route in movieRouter
 
-`router.delete('/:id', deleteMovie);`
+ `router.delete('/:id', deleteMovie);`
+
+## IV. Create the Actor Data Model
+
+4.1 Update the schema
+
+```prisma
+model Actor {
+  id            Int      @id @default(autoincrement())
+  first_name    String
+  last_name     String
+  date_of_birth DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+```
+
+4.1 Run the migration
+
+ `npx prisma migrate dev --name=adding_actor`
+
+4.2 Add the actors to the seed file
+
+```javascript
+async function main() {
+    await prisma.movie.createMany({
+        data: movies,
+    });
+
+    await prisma.actor.createMany({
+        data: actors,
+    });
+}
+```
+
+4.3 Run the seed
+
+* `npx prisma migrate reset`
+* `npm run seed`
+* `npx prisma studio` to see the result in the browser
+
+## V. Add the CRUD handlers for actors
+
+5.1 Create the getAllActors handler
+
+```bash
+touch src/handlers/actors.ts
+```
+
+```javascript
+import prisma from '../../db';
+
+export const getAllActors = async (req, res) => {
+    const actors = await prisma.actor.findMany();
+
+    res.json({
+        data: actors
+    });
+};
+```
+
+5.3 Create the actorRouter
+
+```bash
+touch src/routers/actorRouter.ts
+```
+
+```javascript
+import {
+    Router
+} from 'express';
+import {
+    getAllActors
+} from '../handlers/actors';
+
+const router = Router();
+
+router.get('/', getAllActors);
+
+export default router;
+```
+
+5.4 Add the router to the server
+
+ `app.use('/api/v1/actors/', actorRouter);`
+
+5.5 Create all the other CRUD handlers for actors
+
+```javascript
+export const getActorById = async (req, res) => {
+    const id = Number(req.params.id);
+
+    const actor = await prisma.actor.findUnique({
+        where: {
+            id,
+        },
+    });
+    res.json({
+        data: actor
+    });
+};
+
+export const updateActor = async (req, res) => {
+    const id = Number(req.params.id);
+
+    const actor = await prisma.actor.update({
+        where: {
+            id,
+        },
+        data: req.body,
+    });
+
+    res.json({
+        data: actor
+    });
+};
+
+export const deleteActor = async (req, res) => {
+    const id = Number(req.params.id);
+
+    const actor = await prisma.actor.delete({
+        where: {
+            id,
+        },
+    });
+
+    res.json({
+        data: actor
+    });
+};
+```
+
+5.6 Update the actorRouter
+
+```javascript
+router.get('/', getAllActors);
+router.get('/:id', getActorById);
+router.put('/:id', getActorById);
+router.delete('/:id', deleteActor);
+```
+
 

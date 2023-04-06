@@ -45,7 +45,15 @@ var getAllMovies = function (req, res) { return __awaiter(void 0, void 0, void 0
     var movies;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, db_1.default.movie.findMany()];
+            case 0: return [4 /*yield*/, db_1.default.movie.findMany({
+                    include: {
+                        casting: {
+                            select: {
+                                actor: true,
+                            },
+                        },
+                    },
+                })];
             case 1:
                 movies = _a.sent();
                 res.json({ data: movies });
@@ -63,6 +71,9 @@ var getMovieById = function (req, res) { return __awaiter(void 0, void 0, void 0
                 return [4 /*yield*/, db_1.default.movie.findUnique({
                         where: {
                             id: id,
+                        },
+                        include: {
+                            casting: true,
                         },
                     })];
             case 1:

@@ -11,19 +11,29 @@ datasource db {
 }
 
 model Movie {
-  id                 Int      @id @default(autoincrement())
+  id                 Int       @id @default(autoincrement())
   title              String
   release_date       DateTime
+  casting            Casting[]
   runtime_in_minutes Int
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }
 
 model Actor {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   first_name    String
   last_name     String
   date_of_birth DateTime
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  casting       Casting[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Casting {
+  id       Int    @id @default(autoincrement())
+  movie_id Int
+  actor_id Int
+  movie    Movie? @relation(fields: [movie_id], references: [id])
+  actor    Actor? @relation(fields: [actor_id], references: [id])
 }

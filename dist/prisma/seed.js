@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var client_1 = require("@prisma/client");
 var movies_1 = require("./seeds/movies");
 var actors_1 = require("./seeds/actors");
+var casting_1 = require("./seeds/casting");
 var prisma = new client_1.PrismaClient();
 function main() {
     return __awaiter(this, void 0, void 0, function () {
@@ -53,6 +54,11 @@ function main() {
                             data: actors_1.actors,
                         })];
                 case 2:
+                    _a.sent();
+                    return [4 /*yield*/, prisma.casting.createMany({
+                            data: casting_1.casting,
+                        })];
+                case 3:
                     _a.sent();
                     return [2 /*return*/];
             }
